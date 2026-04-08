@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import base64
 import html
+import mimetypes
 from pathlib import Path
 from typing import Iterable
+from urllib.parse import quote
 
 from ..core.session import Session
 from . import drawio_xml
@@ -42,6 +45,12 @@ def default_text_style(
 
 def normalize_label(label: str) -> str:
     return html.escape(label).replace("\n", "<br>")
+
+
+def format_label(label: str, raw_html: bool = False) -> str:
+    if raw_html:
+        return label.replace("\n", "<br>")
+    return normalize_label(label)
 
 
 def _coerce_style_value(value) -> str:
@@ -88,6 +97,8 @@ def add_shape(
     width: float,
     height: float,
     label: str = "",
+    *,
+    raw_html: bool = False,
     **style_props,
 ) -> str:
     style = merge_style(base_style, **default_text_style(), **style_props)
@@ -98,7 +109,7 @@ def add_shape(
         y,
         width,
         height,
-        normalize_label(label),
+        format_label(label, raw_html=raw_html),
     )
 
 
@@ -121,6 +132,7 @@ def add_box(
     vertical_align: str = "middle",
     dashed: bool = False,
     opacity: int | None = None,
+    raw_html: bool = False,
 ) -> str:
     base = drawio_xml.SHAPE_STYLES["rounded" if rounded else "rectangle"]
     style = merge_style(
@@ -138,7 +150,7 @@ def add_box(
             vertical_align=vertical_align,
         ),
     )
-    return drawio_xml.add_vertex(mxfile, style, x, y, width, height, normalize_label(label))
+    return drawio_xml.add_vertex(mxfile, style, x, y, width, height, format_label(label, raw_html=raw_html))
 
 
 def add_text(
@@ -153,6 +165,7 @@ def add_text(
     bold: bool = False,
     font_color: str = "#000000",
     align: str = "center",
+    raw_html: bool = False,
 ) -> str:
     style = merge_style(
         drawio_xml.SHAPE_STYLES["text"],
@@ -166,7 +179,7 @@ def add_text(
             align=align,
         ),
     )
-    return drawio_xml.add_vertex(mxfile, style, x, y, width, height, normalize_label(label))
+    return drawio_xml.add_vertex(mxfile, style, x, y, width, height, format_label(label, raw_html=raw_html))
 
 
 def add_ellipse(
@@ -181,6 +194,7 @@ def add_ellipse(
     stroke_color: str = "#666666",
     font_size: int = 12,
     bold: bool = False,
+    raw_html: bool = False,
 ) -> str:
     style = merge_style(
         drawio_xml.SHAPE_STYLES["ellipse"],
@@ -189,7 +203,7 @@ def add_ellipse(
         strokeWidth=1.0,
         **default_text_style(font_size=font_size, bold=bold),
     )
-    return drawio_xml.add_vertex(mxfile, style, x, y, width, height, normalize_label(label))
+    return drawio_xml.add_vertex(mxfile, style, x, y, width, height, format_label(label, raw_html=raw_html))
 
 
 def add_diamond(
@@ -204,6 +218,7 @@ def add_diamond(
     stroke_color: str = "#666666",
     font_size: int = 12,
     bold: bool = False,
+    raw_html: bool = False,
 ) -> str:
     style = merge_style(
         drawio_xml.SHAPE_STYLES["diamond"],
@@ -212,7 +227,7 @@ def add_diamond(
         strokeWidth=1.0,
         **default_text_style(font_size=font_size, bold=bold),
     )
-    return drawio_xml.add_vertex(mxfile, style, x, y, width, height, normalize_label(label))
+    return drawio_xml.add_vertex(mxfile, style, x, y, width, height, format_label(label, raw_html=raw_html))
 
 
 def add_point(mxfile, x: float, y: float, size: float = 4.0) -> str:
@@ -227,6 +242,37 @@ def add_point(mxfile, x: float, y: float, size: float = 4.0) -> str:
         **default_text_style(font_size=1),
     )
     return drawio_xml.add_vertex(mxfile, style, x, y, size, size, "")
+
+
+def add_image(
+    mxfile,
+    x: float,
+    y: float,
+    width: float,
+    height: float,
+    image_path: str | Path,
+    *,
+    stroke_color: str = "#000000",
+    stroke_width: float = 1.0,
+    opacity: int | None = None,
+    rounded: bool = False,
+) -> str:
+    image_path = Path(image_path)
+    mime_type, _ = mimetypes.guess_type(str(image_path))
+    if mime_type is None:
+        mime_type = "application/octet-stream"
+    image_b64 = base64.b64encode(image_path.read_bytes()).decode("ascii")
+    data_uri = f"data:{mime_type};base64,{image_b64}"
+    style = merge_style(
+        "shape=image;html=1;imageAspect=0;aspect=fixed;",
+        image=quote(data_uri, safe=":/,="),
+        strokeColor=stroke_color,
+        strokeWidth=stroke_width,
+        opacity=opacity,
+        rounded=rounded,
+        **default_text_style(),
+    )
+    return drawio_xml.add_vertex(mxfile, style, x, y, width, height, "")
 
 
 def add_edge(
@@ -244,6 +290,7 @@ def add_edge(
     start_arrow: str = "none",
     font_size: int = 10,
     font_color: str = "#000000",
+    raw_html: bool = False,
 ) -> str:
     if curved:
         base_style = drawio_xml.EDGE_STYLES["curved"]
@@ -261,7 +308,7 @@ def add_edge(
         rounded=0,
         **default_text_style(font_size=font_size, font_color=font_color),
     )
-    return drawio_xml.add_edge(mxfile, source_id, target_id, style, normalize_label(label))
+    return drawio_xml.add_edge(mxfile, source_id, target_id, style, format_label(label, raw_html=raw_html))
 
 
 def add_line(
@@ -277,8 +324,8 @@ def add_line(
     end_arrow: str = "none",
     start_arrow: str = "none",
 ) -> str:
-    p1 = add_point(mxfile, x1, y1)
-    p2 = add_point(mxfile, x2, y2)
+    p1 = add_point(mxfile, x1, y1, size=0.1)
+    p2 = add_point(mxfile, x2, y2, size=0.1)
     return add_edge(
         mxfile,
         p1,
@@ -299,7 +346,7 @@ def add_polyline(
     width: float = 1.0,
     dashed: bool = False,
 ) -> list[str]:
-    point_ids = [add_point(mxfile, x, y) for x, y in points]
+    point_ids = [add_point(mxfile, x, y, size=0.1) for x, y in points]
     edges: list[str] = []
     for source_id, target_id in zip(point_ids, point_ids[1:]):
         edges.append(

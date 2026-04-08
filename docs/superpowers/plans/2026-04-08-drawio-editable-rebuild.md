@@ -10,6 +10,67 @@
 
 ---
 
+### Benchmark-first note
+
+Before expanding to all 13 figures again, rebuild `ch4/fig1_teaser` and `ch4/fig2_architecture` as fidelity benchmarks. Quality is the primary objective. The benchmark pass must preserve the fine structure from the source TeX/PDF, not just the major blocks.
+
+### Task 0: Raise the fidelity bar for benchmark figures
+
+**Files:**
+- Modify: `drawio/agent-harness/cli_anything/drawio/tests/test_rebuild.py`
+- Modify: `drawio/agent-harness/cli_anything/drawio/utils/rebuild.py`
+- Modify: `drawio/agent-harness/cli_anything/drawio/rebuild/ch4_generators.py`
+
+- [ ] **Step 1: Write failing fidelity tests for the benchmark figures**
+
+```python
+def test_fig1_teaser_generator_preserves_source_thumbnails_and_micro_labels(tmp_path):
+    ...
+    assert len(image_vertices) == 2
+    assert any("×α" in label for label in labels)
+
+def test_fig2_architecture_generator_preserves_residuals_and_equation_labels(tmp_path):
+    ...
+    assert any("e<sub>abs</sub>" in label for label in labels)
+    assert any("b<sub>rel</sub>" in label for label in labels)
+```
+
+- [ ] **Step 2: Run the benchmark tests to verify they fail**
+
+Run: `cd /Users/daijidong/Pictures/figures-drawio/CLI-Anything/drawio/agent-harness && pytest cli_anything/drawio/tests/test_rebuild.py -v`
+Expected: FAIL because the current benchmark generators omit source thumbnails and formula-grade labels.
+
+- [ ] **Step 3: Add the missing rebuild primitives and rewrite the benchmark generators**
+
+```python
+def add_image(mxfile, x, y, width, height, image_path, **style_props):
+    ...
+
+def build_fig1_teaser(output_path: Path, base_dir: Path):
+    # Rebuild from TeX-space coordinates and source thumbnails.
+    ...
+
+def build_fig2_architecture(output_path: Path, base_dir: Path):
+    # Preserve residual paths, formula labels, and DAVA module framing.
+    ...
+```
+
+- [ ] **Step 4: Run the benchmark tests to verify they pass**
+
+Run: `cd /Users/daijidong/Pictures/figures-drawio/CLI-Anything/drawio/agent-harness && pytest cli_anything/drawio/tests/test_rebuild.py -v`
+Expected: PASS for the new benchmark fidelity checks.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add drawio/agent-harness/cli_anything/drawio/tests/test_rebuild.py \
+        drawio/agent-harness/cli_anything/drawio/utils/rebuild.py \
+        drawio/agent-harness/cli_anything/drawio/rebuild/ch4_generators.py \
+        docs/superpowers/specs/2026-04-08-drawio-editable-rebuild-design.md \
+        docs/superpowers/plans/2026-04-08-drawio-editable-rebuild.md
+git commit -m "feat: raise drawio fidelity for benchmark figures"
+```
+
 ### Task 1: Add spec-aware rebuild tests
 
 **Files:**

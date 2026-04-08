@@ -49,6 +49,19 @@ Use a hybrid rebuild pipeline:
 
 This avoids the instability of PDF vector reverse-engineering while preserving editability.
 
+## Fidelity strategy update
+
+The first-pass generators proved that "editable" is not enough. The revised requirement is benchmark-first, fidelity-first:
+
+1. Treat `ch4/fig1_teaser` and `ch4/fig2_architecture` as benchmark figures.
+2. Rebuild them with source-level detail preserved, including:
+   - figure-native thumbnail images when the original TeX explicitly includes source images
+   - internal micro-structure such as token rows, matrix stacks, small labels, icons, and residual paths
+   - exact formula labels and edge annotations where they carry meaning
+3. Only after those two benchmark outputs are judged high quality should the same fidelity bar be applied to the remaining targets.
+
+This means the implementation may use more figure-specific layout code and richer helper primitives instead of forcing everything through coarse reusable templates.
+
 ## Architecture
 
 ### Rebuild primitives
@@ -58,6 +71,8 @@ Add helper functions that can:
 - create pages with explicit page sizes
 - add styled boxes, circles, diamonds, and text nodes
 - add styled connectors, dashed guides, and labeled arrows
+- embed source images as draw.io image cells when the figure itself contains native bitmap assets
+- preserve rich text labels with explicit HTML/subscript formatting when needed
 - apply consistent font, spacing, stroke, and color defaults
 
 These helpers should be thin wrappers over the existing XML/session utilities.
@@ -106,11 +121,12 @@ If a shape preset does not already carry font metadata, the rebuild layer must i
 
 - verify default Songti font style is applied to vertices and edges
 - verify rebuild helpers generate editable cells instead of image/embed nodes
+- verify figure-native thumbnail embedding uses explicit data URIs instead of screenshot exports
 - verify representative figure generators produce the expected number and kinds of cells
 
 ### Integration tests
 
-- generate a representative `pdf+tex` figure and inspect structure
+- generate benchmark `pdf+tex` figures and inspect structure, labels, and required micro-elements
 - generate a representative `pdf-only` figure and inspect structure
 - verify output files exist and parse as draw.io XML
 

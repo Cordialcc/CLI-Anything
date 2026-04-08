@@ -58,6 +58,7 @@ The first-pass generators proved that "editable" is not enough. The revised requ
    - figure-native thumbnail images when the original TeX explicitly includes source images
    - internal micro-structure such as token rows, matrix stacks, small labels, icons, and residual paths
    - exact formula labels and edge annotations where they carry meaning
+   - selective auxiliary explanatory elements when they improve balance and clarify data provenance, such as a small RGB-to-depth-estimator-to-depth vignette in unused whitespace
 3. Only after those two benchmark outputs are judged high quality should the same fidelity bar be applied to the remaining targets.
 
 This means the implementation may use more figure-specific layout code and richer helper primitives instead of forcing everything through coarse reusable templates.

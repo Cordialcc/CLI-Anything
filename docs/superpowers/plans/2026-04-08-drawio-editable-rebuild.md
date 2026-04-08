@@ -14,6 +14,8 @@
 
 Before expanding to all 13 figures again, rebuild `ch4/fig1_teaser` and `ch4/fig2_architecture` as fidelity benchmarks. Quality is the primary objective. The benchmark pass must preserve the fine structure from the source TeX/PDF, not just the major blocks.
 
+The benchmark pass may also use spare whitespace intentionally when it clarifies provenance without crowding the main composition. For `fig1_teaser`, that includes a small right-lower vignette showing RGB input feeding a depth estimator that produces the depth map.
+
 ### Task 0: Raise the fidelity bar for benchmark figures
 
 **Files:**

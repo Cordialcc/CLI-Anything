@@ -265,6 +265,14 @@ def build_fig1_teaser(output_path: Path, base_dir: Path):
     _add_path(root, [point(8.75, 4.15), point(8.75, 4.43)], color="#666666", width=0.7, end_arrow="classic")
     _add_path(root, [point(8.75, 5.17), point(8.75, 5.50)], color="#666666", width=0.7, end_arrow="classic")
 
+    add_cm_image(7.95, 1.10, 1.15, 0.65, rgb_path, stroke_color="#999999", stroke_width=0.6)
+    add_cm_box(8.95, 1.10, 1.00, 0.42, "深度估计器", fill_color="#F5F5F5", stroke_color="#BBBBBB", font_size=8)
+    add_cm_image(9.95, 1.10, 1.15, 0.65, depth_path, stroke_color="#999999", stroke_width=0.6)
+    _add_path(root, [point(8.53, 1.10), point(8.45, 1.10)], color="#8A8A8A", width=0.55, end_arrow="classic")
+    _add_path(root, [point(9.45, 1.10), point(9.37, 1.10)], color="#8A8A8A", width=0.55, end_arrow="classic")
+    add_cm_text(7.95, 0.56, "RGB", w_cm=0.45, h_cm=0.15, font_size=7, font_color="#666666")
+    add_cm_text(9.95, 0.56, "深度图", w_cm=0.55, h_cm=0.15, font_size=7, font_color="#666666")
+
     llm = add_cm_box(5.0, 6.40, 10.0, 1.0, "大语言模型", fill_color="#E2EFDA", stroke_color="#548235", stroke_width=1.0, font_size=16)
     add_cm_text(0.08, 6.78, "❄", w_cm=0.20, h_cm=0.20, font_size=9, font_color="#9AA0A6")
     add_cm_text(9.55, 6.82, "LoRA", w_cm=0.55, h_cm=0.20, font_size=7, font_color="#C0392B")

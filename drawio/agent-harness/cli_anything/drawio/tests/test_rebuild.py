@@ -71,7 +71,7 @@ class TestGenerators:
             if style.get("shape") == "image":
                 image_vertices.append(cell)
 
-        assert len(image_vertices) == 2
+        assert len(image_vertices) >= 4
         for cell in image_vertices:
             style = drawio_xml.parse_style(cell.get("style", ""))
             assert unquote(style["image"]).startswith("data:image/png;base64,")
@@ -92,6 +92,7 @@ class TestGenerators:
             "分词器",
             "大语言模型",
             "回答",
+            "深度估计器",
         ]:
             assert any(token in label for label in labels), token
 

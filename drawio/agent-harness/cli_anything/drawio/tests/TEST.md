@@ -151,3 +151,27 @@ drawio:  138 passed, 3 skipped (116 unit + 22 e2e)
 ```
 
 **100% pass rate on all available tests.**
+
+## Editable Rebuild Coverage
+
+- Added `test_rebuild.py` for editable figure reconstruction.
+- Coverage includes:
+  - Songti default font enforcement
+  - no image/embed style regression
+  - 13-target inventory validation
+  - representative `pdf+tex` rebuild generation
+  - representative `pdf-only` rebuild generation
+  - full 13-target batch rebuild smoke test
+
+Latest command:
+
+```bash
+cd /Users/daijidong/Pictures/figures-drawio/CLI-Anything/drawio/agent-harness
+pytest cli_anything/drawio/tests/test_core.py cli_anything/drawio/tests/test_rebuild.py -v
+```
+
+Latest result:
+
+```text
+126 passed in 0.17s
+```

@@ -16,7 +16,7 @@ import subprocess
 import shutil
 import pytest
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 from cli_anything.drawio.core.session import Session
 from cli_anything.drawio.core import project as proj_mod
